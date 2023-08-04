@@ -3,7 +3,7 @@
 namespace app\console\swoole\controller;
 
 use app\console\swoole\logic\websocketLogic;
-use app\swoole\baseController;
+use app\console\swoole\baseController;
 use rephp\swoole\websocket\websocket;
 
 class websocketController extends baseController
