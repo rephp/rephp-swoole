@@ -17,7 +17,7 @@ class websocketLogic
             echo '接收到消息:' . $message;
             $params = json_decode($message, true);
             $logic  = $params['logic'] ?: '';
-            \app\modules\swoole\logic\websocketLogic::dealMessasge($logic, $params, $fd, $websocket);
+            \app\console\swoole\logic\websocketLogic::dealMessasge($logic, $params, $fd, $websocket);
         };
 
         return $fun;
