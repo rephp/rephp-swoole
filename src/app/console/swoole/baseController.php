@@ -1,7 +1,7 @@
 <?php
-namespace app\swoole;
+namespace app\console\swoole;
 
-use rephp\core\controller;
+use app\console\baseController as controller;
 
 /**
  * 基类

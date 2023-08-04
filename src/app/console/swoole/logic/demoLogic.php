@@ -1,6 +1,5 @@
 <?php
-
-namespace app\swoole\logic;
+namespace app\console\swoole\logic;
 
 use rephp\swoole\websocket\interfaces\onMessageInterface;
 

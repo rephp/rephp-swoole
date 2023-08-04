@@ -1,6 +1,6 @@
 <?php
 
-namespace app\modules\swoole\logic;
+namespace app\console\swoole\logic;
 
 /**
  * websocket封装逻辑

@@ -1,8 +1,8 @@
 <?php
 
-namespace app\modules\swoole\controller;
+namespace app\console\swoole\controller;
 
-use app\modules\swoole\logic\websocketLogic;
+use app\console\swoole\logic\websocketLogic;
 use app\swoole\baseController;
 use rephp\swoole\websocket\websocket;
 
