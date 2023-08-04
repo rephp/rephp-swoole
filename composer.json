@@ -1,0 +1,20 @@
+{
+    "name": "rephp/swoole",
+    "description": "rephp框架的swoole扩展",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "sam.shi",
+            "email": "32320811@qq.com"
+        }
+    ],
+    "require": {
+    	"php": ">=5.6.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "rephp\\swoole\\": "./src/"
+        }
+    }
+	
+}
