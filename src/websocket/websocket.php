@@ -2,7 +2,7 @@
 
 namespace rephp\swoole\websocket;
 
-use rephp\swoole\websocket\interfaces\websocketInterface;
+use rephp\swoole\websocket\event\websocketEvent;
 
 /**
  * todo:思路内置对象，对外开放简单方法如推送和接收数据并执行方法（这个放在引用模块）
@@ -11,7 +11,7 @@ use rephp\swoole\websocket\interfaces\websocketInterface;
  * 3.发送
  * 4.初始化基础信息
  */
-class websocket implements websocketInterface
+class websocket
 {
     /*
      * @var \Swoole\Websocket\Server $server websocket服务端对象
@@ -35,80 +35,17 @@ class websocket implements websocketInterface
     /**
      * 实例化内置对象
      */
-    public function __construct($config)
+    public function __construct($config, \Closure $onMessageEvent)
     {
         //实例化redis对象
         $this->createRedis($config['redis'] ?? []);
         //实例化websocket服务端对象
         $this->createWebsocketServer($config['websocket'] ?? []);
         //初始化内置事件-websocket服务启动
-        $this->onStart();
-
-    }
-
-    /**
-     * 实例化redis对象
-     * @param array $config redis配置信息
-     * @return void
-     */
-    protected function createRedis($config)
-    {
-        $this->redisConfig = $config;
-        //todo:连接redis
-    }
-
-    /**
-     * 实例化websocket服务端对象
-     * @param array $config websocket配置信息
-     * @return void
-     */
-    protected function createWebsocketServer($config)
-    {
-        $this->websocketConfig = $config;
-        $host                  = $this->websocketConfig['host'] ?: '127.0.0.1';
-        $port                  = $this->websocketConfig['port'] ?: 9502;
-        $this->server          = new \Swoole\Websocket\Server($host, $port);
-    }
-
-    /**
-     * 启动websocket
-     * @param \Swoole\Websocket\Server $server websocket连接对象
-     * @return void
-     */
-    protected function onStart()
-    {
-        $this->server->on('start', function ($server) {
-            echo "Websocket Server is started at ws://'.$this->websocketConfig['host'].':'.$this->websocketConfig['port'].'\n";
-        });
-    }
-
-    /**
-     * 用户建立连接登录
-     * @return void
-     */
-    protected function onOpen()
-    {
-        $redis = $this->redis;
-        $this->server->on('open', function ($server, $req) use ($redis) {
-            $roomId = $req->room_id ?? 0;
-            $redis->set('websocket:user:' . $req->fd, $roomId);
-            $redis->hset('websocket:room_' . $roomId, $req->fd, 1);
-            echo "connection open: {$req->fd}\n";
-        });
-    }
-
-    /**
-     * 监听接收消息事件
-     * @param          $server
-     * @param \Closure $fun
-     * @return void
-     */
-    public function onMessage($server, \Closure $fun)
-    {
-        $server->on('message', function ($server, $frame) use ($fun) {
-            echo "received message: {$frame->data}\n";
-            $fun($frame->fd, $frame->data);
-        });
+        websocketEvent::onStart($this);
+        websocketEvent::onOpen($this);
+        websocketEvent::onClose($this);
+        websocketEvent::onMessage($this, $onMessageEvent);
     }
 
     /**
@@ -133,29 +70,85 @@ class websocket implements websocketInterface
                 $fdArr = [$fd];
                 break;
         }
-        if(empty($fdArr)){
-            return false;
-        }
-        is_string($msg) || $msg = json_encode($msg, JSON_UNESCAPED_UNICODE);
-        foreach ($fdArr as $sendFd) {
-            $this->server->push($sendFd, $msg);
+        //开始逐个推送
+        $result = false;
+        if (!empty($fdArr)) {
+            is_string($msg) || $msg = json_encode($msg, JSON_UNESCAPED_UNICODE);
+            foreach ($fdArr as $sendFd) {
+                $this->server->push($sendFd, $msg);
+            }
+            $result = true;
         }
 
-        return true;
+        return $result;
     }
 
     /**
-     * 用户退出关闭连接操作
+     * 实例化redis对象
+     * @param array $config redis配置信息
      * @return void
      */
-    protected function onClose()
+    protected function createRedis($config)
     {
-        $redis = $this->redis;
-        $this->server->on('close', function ($server, $fd) use ($redis) {
-            $roomId = $redis->get('websocket:user:' . $fd) ?: 0;
-            $redis->hdel('websocket:room_' . $roomId, $fd);
-            $redis->del('websocket:user:' . $fd);
-            echo "connection close: {$fd}\n";
-        });
+        $this->redisConfig = $config;
+        $host              = $config['host'] ?: '127.0.0.1';
+        $port              = $config['port'] ?: '6379';
+        $connectTimeout    = $config['connect_timeout'] ?: 60;
+        $password          = $config['password'] ?: '';
+        $redis             = new \Redis();
+        $redis->connect($host, $port, $connectTimeout);
+        empty($password) || $redis->auth($password);
+
+        $this->redis = $redis;
     }
+
+    /**
+     * 实例化websocket服务端对象
+     * @param array $config websocket配置信息
+     * @return void
+     */
+    protected function createWebsocketServer($config)
+    {
+        $this->websocketConfig = $config;
+        $host                  = $this->websocketConfig['host'] ?: '127.0.0.1';
+        $port                  = $this->websocketConfig['port'] ?: 9502;
+        $this->server          = new \Swoole\Websocket\Server($host, $port);
+    }
+
+    /**
+     * 获取redis配置信息
+     * @return array|null
+     */
+    public function getRedisConfig()
+    {
+        return $this->redisConfig;
+    }
+
+    /**
+     * 获取websocket配置信息
+     * @return array|null
+     */
+    public function getWebsocketConfig()
+    {
+        return $this->websocketConfig;
+    }
+
+    /**
+     * 获取redis对象
+     * @return \Redis
+     */
+    public function getRedis()
+    {
+        return $this->redis;
+    }
+
+    /**
+     * 获取websocket server对象
+     * @return \Swoole\Websocket\Server
+     */
+    public function getServer()
+    {
+        return $this->server;
+    }
+
 }

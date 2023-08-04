@@ -1,13 +1,19 @@
 <?php
 
-namespace app\modules\index\controller;
+namespace app\modules\swoole\controller;
 
+use app\modules\swoole\logic\websocketLogic;
 use app\swoole\baseController;
+use rephp\swoole\websocket\websocket;
 
 class websocketController extends baseController
 {
     public $layout = 'index';
 
+    /**
+     * 运行websocket
+     * @return void
+     */
     public function runAction()
     {
         try {
@@ -15,17 +21,16 @@ class websocketController extends baseController
                 'websocket' => config('swoole.websocket'),
                 'redis'     => config('swoole.redis'),
             ];
-            //动态绑定组件
-            //1.初始化server对象
-            //2.加载动态事件
-            //3.运行
+
+            $onMessageEvent = websocketLogic::getOnMessageEvent();
+            $websocket      = new websocket($config, $onMessageEvent);
+            $websocket->getServer()->start();
         } catch (\Exception $e) {
             echo 'Error: ' . $e->getMessage() . "\n";
             echo 'File: ' . $e->getFile() . ':' . $e->getLine() . "\n";
             echo 'Trace: ' . $e->getTraceAsString() . "\n";
             exit('');
         }
-
 
     }
 }
