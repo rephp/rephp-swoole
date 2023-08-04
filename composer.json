@@ -1,5 +1,5 @@
 {
-    "name": "rephp/swoole",
+    "name": "rephp/rephp-swoole",
     "description": "rephp框架的swoole扩展",
     "license": "MIT",
     "authors": [
