@@ -19,8 +19,17 @@ class websocketEvent
         $websocketConfig = $websocket->getWebsocketConfig();
         $host            = $websocketConfig['host'] ?? '127.0.0.1';
         $port            = $websocketConfig['port'] ?? '9502';
-        $websocket->getServer()->on('start', function ($server) use ($host, $port) {
-            echo "Websocket Server is started at ws://'.$host.':'.$port.'\n";
+        $redis           = $websocket->getRedis();
+        $websocket->getServer()->on('start', function ($server) use ($host, $port, $redis) {
+            //1.del room cache
+            $roomKeyArr = $redis->keys('swoole:websocket:room:*');
+            empty($roomKeyArr) && $roomKeyArr = [];
+            foreach($roomKeyArr as $roomKey){
+                $redis->del($roomKey);
+            }
+            //2.del all user cache
+            $redis->del('swoole:websocket:user');
+            echo 'Websocket Server is started at ws://' . $host . ':' . $port . "\n";
         });
     }
 
@@ -34,8 +43,8 @@ class websocketEvent
         $redis = $websocket->getRedis();
         $websocket->getServer()->on('open', function ($server, $req) use ($redis) {
             $roomId = $req->room_id ?? 0;
-            $redis->set('websocket:user:' . $req->fd, $roomId);
-            $redis->hset('websocket:room_' . $roomId, $req->fd, 1);
+            $redis->hset('swoole:websocket:user', $req->fd, $roomId);
+            $redis->hset('swoole:websocket:room:room_'.$roomId, $req->fd, $roomId);
             echo "connection open: {$req->fd}\n";
         });
     }
@@ -49,9 +58,9 @@ class websocketEvent
     {
         $redis = $websocket->getRedis();
         $websocket->getServer()->on('close', function ($server, $fd) use ($redis) {
-            $roomId = $redis->get('websocket:user:' . $fd) ?: 0;
-            $redis->hdel('websocket:room_' . $roomId, $fd);
-            $redis->del('websocket:user:' . $fd);
+            $roomId = $redis->hget('swoole:websocket:user', $fd) ?: 0;
+            $redis->hdel('swoole:websocket:room:room_'.$roomId, $fd);
+            $redis->hdel('swoole:websocket:user', $fd);
             echo "connection close: {$fd}\n";
         });
     }

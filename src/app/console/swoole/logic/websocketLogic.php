@@ -27,7 +27,7 @@ class websocketLogic
      * 执行处理接收到的数据
      * @param \rephp\swoole\websocket\interfaces\onMessageInterface $logic     消息处理逻辑类(路由)
      * @param array                                                 $params    请求参数
-     * @param mixed                                                 $fd        客户端连接句柄
+     * @param int                                                   $fd        客户端连接句柄
      * @param \rephp\swoole\websocket\websocket                     $websocket websocket对象
      * @return mixed
      */
@@ -39,6 +39,8 @@ class websocketLogic
             $websocket->pushMsg($fd, $msg);
             return false;
         }
+        $logic = '\\app\\console\\swoole\\logic\\' . $logic;
+
         return $logic::doMessasge($params, $fd, $websocket);
     }
 

@@ -50,7 +50,7 @@ class websocket
 
     /**
      * 服务端发送信息
-     * @param mixed        $fd   当前websocket连接信息
+     * @param int          $fd   当前websocket连接信息
      * @param string|array $msg  要发送的消息内容
      * @param string       $type 发送类型:all=系统全局通知,room=当前房间内公告,p2p=给指定当前连接人发送信息
      * @return boolean
@@ -59,11 +59,11 @@ class websocket
     {
         switch ($type) {
             case 'room'://当前房间内公告通知
-                $roomId = $this->redis->get('websocket:user:' . $fd) ?: 0;
-                $fdArr  = $this->redis->hKeys('websocket:room_' . $roomId);
+                $roomId = $this->redis->hget('swoole:websocket:user', $fd) ?: 0;
+                $fdArr  = $this->redis->hKeys('swoole:websocket:room:room_' . $roomId);
                 break;
             case 'all'://系统通知，所有建立连接的人
-                $fdArr = $this->redis->keys('websocket:room_' . '*');
+                $fdArr = $this->redis->hkeys('swoole:websocket:user');
                 break;
             case 'p2p'://给指定人发送连接
             default:
