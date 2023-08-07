@@ -2,6 +2,8 @@
 
 namespace app\console\swoole\logic;
 
+use rephp\component\container\container;
+
 /**
  * websocket封装逻辑
  */
@@ -39,9 +41,9 @@ class websocketLogic
             $websocket->pushMsg($fd, $msg);
             return false;
         }
-        $logic = '\\app\\console\\swoole\\logic\\' . $logic;
+        $logic = '\\app\\console\\swoole\\logic\\'.$logic;
 
-        return $logic::doMessasge($params, $fd, $websocket);
+        return    container::getContainer()->bind($logic, $logic)->doMessasge($params, $fd, $websocket);
     }
 
 }
