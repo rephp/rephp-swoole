@@ -5,11 +5,7 @@ namespace rephp\swoole\websocket;
 use rephp\swoole\websocket\event\websocketEvent;
 
 /**
- * todo:思路内置对象，对外开放简单方法如推送和接收数据并执行方法（这个放在引用模块）
- * 1.连接
- * 2.接收
- * 3.发送
- * 4.初始化基础信息
+ * websocket服务管理类
  */
 class websocket
 {

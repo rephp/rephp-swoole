@@ -24,7 +24,7 @@ class websocketEvent
             //1.del room cache
             $roomKeyArr = $redis->keys('swoole:websocket:room:*');
             empty($roomKeyArr) && $roomKeyArr = [];
-            foreach($roomKeyArr as $roomKey){
+            foreach ($roomKeyArr as $roomKey) {
                 $redis->del($roomKey);
             }
             //2.del all user cache
@@ -44,7 +44,7 @@ class websocketEvent
         $websocket->getServer()->on('open', function ($server, $req) use ($redis) {
             $roomId = $req->room_id ?? 0;
             $redis->hset('swoole:websocket:user', $req->fd, $roomId);
-            $redis->hset('swoole:websocket:room:room_'.$roomId, $req->fd, $roomId);
+            $redis->hset('swoole:websocket:room:room_' . $roomId, $req->fd, $roomId);
             echo "connection open: {$req->fd}\n";
         });
     }
@@ -59,7 +59,7 @@ class websocketEvent
         $redis = $websocket->getRedis();
         $websocket->getServer()->on('close', function ($server, $fd) use ($redis) {
             $roomId = $redis->hget('swoole:websocket:user', $fd) ?: 0;
-            $redis->hdel('swoole:websocket:room:room_'.$roomId, $fd);
+            $redis->hdel('swoole:websocket:room:room_' . $roomId, $fd);
             $redis->hdel('swoole:websocket:user', $fd);
             echo "connection close: {$fd}\n";
         });
@@ -68,7 +68,7 @@ class websocketEvent
     /**
      * 监听接收消息事件
      * @param websocket $websocket websocket对象
-     * @param \Closure  $fun
+     * @param \Closure  $fun       回调函数
      * @return void
      */
     public static function onMessage(websocket $websocket, \Closure $fun)

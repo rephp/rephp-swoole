@@ -8,10 +8,10 @@ use rephp\swoole\websocket\websocket;
 
 class websocketController extends baseController
 {
-    public $layout = 'index';
-
     /**
      * 运行websocket
+     * linux:    php cmd swoole/websocket/run
+     * windows:  swoole-cli cmd swoole/websocket/run
      * @return void
      */
     public function runAction()
@@ -29,7 +29,7 @@ class websocketController extends baseController
             echo 'Error: ' . $e->getMessage() . "\n";
             echo 'File: ' . $e->getFile() . ':' . $e->getLine() . "\n";
             echo 'Trace: ' . $e->getTraceAsString() . "\n";
-            exit('');
+            exit('fail');
         }
 
     }

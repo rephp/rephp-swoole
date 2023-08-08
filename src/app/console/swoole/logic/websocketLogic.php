@@ -16,7 +16,7 @@ class websocketLogic
     public static function getOnMessageEvent()
     {
         $fun = function ($fd, $message, $websocket) {
-            echo '接收到消息:' . $message;
+            echo '接收到消息:' . $message . "\n";
             $params = json_decode($message, true);
             $logic  = $params['logic'] ?: '';
             \app\console\swoole\logic\websocketLogic::dealMessasge($logic, $params, $fd, $websocket);
@@ -36,14 +36,14 @@ class websocketLogic
     public static function dealMessasge($logic, $params, $fd, $websocket)
     {
         if (empty($logic)) {
-            $msg = '参数错误，没有logic，忽略:' . json_encode($params);
+            $msg = '参数错误，没有logic，忽略:' . json_encode($params) . "\n";
             echo $msg;
             $websocket->pushMsg($fd, $msg);
             return false;
         }
-        $logic = '\\app\\console\\swoole\\logic\\'.$logic;
+        $logic = '\\app\\console\\swoole\\logic\\' . $logic;
 
-        return    container::getContainer()->bind($logic, $logic)->doMessasge($params, $fd, $websocket);
+        return container::getContainer()->bind($logic, $logic)->doMessasge($params, $fd, $websocket);
     }
 
 }
