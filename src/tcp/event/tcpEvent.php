@@ -11,7 +11,7 @@ class tcpEvent
 {
     /**
      * 启动tcp
-     * @param tcp $websocket websocket对象
+     * @param tcp $tcp tcp对象
      * @return void
      */
     public static function onStart(tcp $tcp)
@@ -26,25 +26,25 @@ class tcpEvent
 
     /**
      * 新建连接tcp
-     * @param tcp $websocket websocket对象
+     * @param tcp $tcp tcp对象
      * @return void
      */
     public static function onConnect(tcp $tcp)
     {
         $tcp->getServer()->on('connect', function ($server, $fd) {
-            echo "connection open: {$fd}\n";
+            echo 'connection open: ' . $fd . "\n";
         });
     }
 
     /**
      * 断开连接tcp
-     * @param tcp $websocket websocket对象
+     * @param tcp $tcp tcp对象
      * @return void
      */
     public static function onClose(tcp $tcp)
     {
         $tcp->getServer()->on('close', function ($server, $fd) {
-            echo "connection close: {$fd}\n";
+            echo 'connection close: ' . $fd . "\n";
         });
     }
 

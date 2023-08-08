@@ -45,7 +45,7 @@ class websocketEvent
             $roomId = $req->room_id ?? 0;
             $redis->hset('swoole:websocket:user', $req->fd, $roomId);
             $redis->hset('swoole:websocket:room:room_' . $roomId, $req->fd, $roomId);
-            echo "connection open: {$req->fd}\n";
+            echo 'connection open: ' . $req->fd . "\n";
         });
     }
 
@@ -61,7 +61,7 @@ class websocketEvent
             $roomId = $redis->hget('swoole:websocket:user', $fd) ?: 0;
             $redis->hdel('swoole:websocket:room:room_' . $roomId, $fd);
             $redis->hdel('swoole:websocket:user', $fd);
-            echo "connection close: {$fd}\n";
+            echo 'connection close: ' . $fd . "\n";
         });
     }
 

@@ -2,6 +2,9 @@
 
 namespace rephp\swoole\tcp\interfaces;
 
+/**
+ * tcp logic使用的公共接口
+ */
 interface onReceiveInterface
 {
     /**

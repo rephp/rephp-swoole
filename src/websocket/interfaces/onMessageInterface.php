@@ -2,6 +2,9 @@
 
 namespace rephp\swoole\websocket\interfaces;
 
+/**
+ * websocket logic使用的公共接口
+ */
 interface onMessageInterface
 {
     /**

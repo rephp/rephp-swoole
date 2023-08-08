@@ -25,7 +25,7 @@ class tcp
     {
         //实例化tcp服务端对象
         $this->createTcpServer($config ?: []);
-        //初始化内置事件-websocket服务启动
+        //初始化内置事件-tcp服务启动
         tcpEvent::onStart($this);
         tcpEvent::onConnect($this);
         tcpEvent::onClose($this);
