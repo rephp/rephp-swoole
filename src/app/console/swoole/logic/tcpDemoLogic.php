@@ -1,4 +1,5 @@
 <?php
+
 namespace app\console\swoole\logic;
 
 use rephp\swoole\tcp\interfaces\onReceiveInterface;
@@ -23,6 +24,7 @@ class tcpDemoLogic implements onReceiveInterface
         //...
         //push message to client
         $res = $server->send($fd, $msg);
+        $server->close($fd);
 
         return $res;
     }

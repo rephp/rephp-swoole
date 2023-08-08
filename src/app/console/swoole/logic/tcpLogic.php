@@ -39,6 +39,8 @@ class tcpLogic
             $msg = '参数错误，没有logic，忽略:' . json_encode($params) . "\n";
             echo $msg;
             $server->send($fd, $msg);
+            $server->close($fd);
+
             return false;
         }
         $logic = '\\app\\console\\swoole\\logic\\' . $logic;
