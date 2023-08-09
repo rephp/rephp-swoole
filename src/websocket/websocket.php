@@ -39,6 +39,7 @@ class websocket
         $this->createWebsocketServer($config['websocket'] ?? []);
         //初始化内置事件-websocket服务启动
         websocketEvent::onStart($this);
+        websocketEvent::startPing($this);
         websocketEvent::onOpen($this);
         websocketEvent::onClose($this);
         websocketEvent::onMessage($this, $onMessageEvent);

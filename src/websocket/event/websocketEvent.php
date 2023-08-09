@@ -10,6 +10,15 @@ use rephp\swoole\websocket\websocket;
 class websocketEvent
 {
     /**
+     * 开启ping
+     * @param websocket $websocket websocket对象
+     * @return mixed
+     */
+    public static function startPing(websocket $websocket){
+        return $websocket->getServer()->set(['open_websocket_ping_frame' => true]);
+    }
+
+    /**
      * 启动websocket
      * @param websocket $websocket websocket对象
      * @return void
@@ -74,7 +83,14 @@ class websocketEvent
     public static function onMessage(websocket $websocket, \Closure $fun)
     {
         $websocket->getServer()->on('message', function ($server, $frame) use ($fun, $websocket) {
-            $fun($frame->fd, $frame->data, $websocket);
+            if ($frame->opcode == 0x09) {
+                // 回复 Pong 帧
+                $pongFrame = new \Swoole\WebSocket\Frame;
+                $pongFrame->opcode = WEBSOCKET_OPCODE_PONG;
+                $server->push($frame->fd, $pongFrame);
+            } else {
+                $fun($frame->fd, $frame->data, $websocket);
+            }
         });
     }
 }
