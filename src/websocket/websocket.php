@@ -106,7 +106,7 @@ class websocket
     protected function createWebsocketServer($config)
     {
         $this->websocketConfig = $config;
-        $host                  = $this->websocketConfig['host'] ?: '127.0.0.1';
+        $host                  = $this->websocketConfig['host'] ?: '0.0.0.0';
         $port                  = $this->websocketConfig['port'] ?: 9502;
         $this->server          = new \Swoole\Websocket\Server($host, $port);
     }

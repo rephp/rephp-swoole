@@ -39,7 +39,7 @@ class tcp
      */
     protected function createTcpServer($config)
     {
-        $host         = $config['host'] ?? '127.0.0.1';
+        $host         = $config['host'] ?? '0.0.0.0';
         $port         = $config['port'] ?? '9503';
         $this->config = [
             'host' => $host,
